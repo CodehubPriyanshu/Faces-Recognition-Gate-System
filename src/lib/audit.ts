@@ -14,6 +14,6 @@ export async function recordAudit(
     actor_email: actor.email,
     actor_role: actor.role,
     target: target ?? actor.email,
-    metadata: metadata ?? null,
+    metadata: (metadata ?? null) as never,
   });
 }
