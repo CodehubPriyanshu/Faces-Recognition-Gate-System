@@ -43,7 +43,7 @@ function UsersPage() {
 
   const del = async (u: U) => {
     if (!confirm(`Delete ${u.email}?`)) return;
-    try { await remove({ data: { user_id: u.id } }); toast.success("Removed"); refresh(); }
+    try { await remove({ data: { id: u.id } }); toast.success("Removed"); refresh(); }
     catch (err) { toast.error((err as Error).message); }
   };
 
