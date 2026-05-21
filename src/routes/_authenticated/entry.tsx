@@ -96,7 +96,12 @@ function EntryPage() {
       }).select().single();
       if (error) throw error;
 
-      await recordAudit("visitor.entry", { pass_no, full_name: form.full_name, visitor_id: inserted.id });
+      await recordAudit(
+        { id: userId, email: auth.profile!.email, role: auth.role! },
+        "visitor.entry",
+        pass_no,
+        { full_name: form.full_name, visitor_id: inserted.id },
+      );
       await generateGatePassPdf({ ...form, pass_no, entry_time, photo_url });
 
       toast.success(`Pass ${pass_no} issued`);
