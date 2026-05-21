@@ -14,14 +14,14 @@ export const Route = createFileRoute("/_authenticated/audit")({
 });
 
 interface Log {
-  id: string; created_at: string; action: string; actor_email: string | null;
+  id: string; ts: string; action: string; actor_email: string | null;
   actor_role: string | null; target: string | null; metadata: any;
 }
 
 function AuditPage() {
   const [logs, setLogs] = useState<Log[]>([]);
   useEffect(() => {
-    supabase.from("audit_logs").select("*").order("created_at", { ascending: false }).limit(500)
+    supabase.from("audit_logs").select("*").order("ts", { ascending: false }).limit(500)
       .then(({ data }) => setLogs((data ?? []) as Log[]));
   }, []);
 
@@ -35,7 +35,7 @@ function AuditPage() {
         <div className="divide-y divide-border">
           {logs.map((l) => (
             <div key={l.id} className="grid grid-cols-12 gap-4 px-5 py-3 items-center">
-              <div className="col-span-3 font-mono text-[0.72rem] text-muted-foreground">{new Date(l.created_at).toLocaleString("en-GB")}</div>
+              <div className="col-span-3 font-mono text-[0.72rem] text-muted-foreground">{new Date(l.ts).toLocaleString("en-GB")}</div>
               <div className="col-span-2"><span className="font-mono text-[0.7rem] uppercase tracking-wider px-2 py-0.5 rounded-sm bg-primary/10 text-primary border border-primary/40">{l.action}</span></div>
               <div className="col-span-3 text-sm">{l.actor_email ?? "system"}</div>
               <div className="col-span-2 font-mono text-[0.7rem] text-muted-foreground uppercase tracking-wider">{l.actor_role ?? "—"}</div>
