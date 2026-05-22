@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { UserPlus, Trash2, Shield } from "lucide-react";
+import { UserPlus, Trash2, Shield, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { listUsers, createUser, deleteUser } from "@/lib/users.functions";
 import { PageHeader } from "@/components/AppHeader";
+import { UpdatePasswordModal } from "@/components/UpdatePasswordModal";
 
 export const Route = createFileRoute("/_authenticated/users")({
   head: () => ({ meta: [{ title: "User Management — BSF · STC" }] }),
