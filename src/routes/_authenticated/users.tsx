@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { UserPlus, Trash2, Shield } from "lucide-react";
+import { UserPlus, Trash2, Shield, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { listUsers, createUser, deleteUser } from "@/lib/users.functions";
 import { PageHeader } from "@/components/AppHeader";
+import { UpdatePasswordModal } from "@/components/UpdatePasswordModal";
 
 export const Route = createFileRoute("/_authenticated/users")({
   head: () => ({ meta: [{ title: "User Management — BSF · STC" }] }),
@@ -26,6 +27,7 @@ function UsersPage() {
   const [users, setUsers] = useState<U[]>([]);
   const [form, setForm] = useState({ email: "", password: "", full_name: "", role: "gate_operator" as const });
   const [busy, setBusy] = useState(false);
+  const [pwTarget, setPwTarget] = useState<U | null>(null);
 
   const refresh = () => list().then((u) => setUsers(u as U[])).catch((e) => toast.error(e.message));
   useEffect(() => { refresh(); }, []);
@@ -85,7 +87,16 @@ function UsersPage() {
                   </td>
                   <td className="px-4 py-3 font-mono text-[0.72rem] text-muted-foreground">{new Date(u.created_at).toLocaleDateString("en-GB")}</td>
                   <td className="px-4 py-3 text-right">
-                    <button onClick={() => del(u)} className="text-destructive hover:bg-destructive/10 rounded p-1.5"><Trash2 className="w-4 h-4" /></button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => setPwTarget(u)}
+                        title="Update password"
+                        className="text-primary hover:bg-primary/10 rounded p-1.5"
+                      >
+                        <KeyRound className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => del(u)} title="Delete user" className="text-destructive hover:bg-destructive/10 rounded p-1.5"><Trash2 className="w-4 h-4" /></button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -96,6 +107,15 @@ function UsersPage() {
 
       <style>{`.input { width:100%; background:transparent; border:1px solid hsl(var(--border)); border-radius:6px; padding:8px 10px; font-family: 'JetBrains Mono', monospace; font-size:0.85rem; color: inherit; }
         .input:focus { outline:none; border-color: oklch(0.79 0.16 75 / 0.6); }`}</style>
+
+      {pwTarget && (
+        <UpdatePasswordModal
+          userId={pwTarget.id}
+          userEmail={pwTarget.email}
+          onClose={() => setPwTarget(null)}
+          onSuccess={refresh}
+        />
+      )}
     </div>
   );
 }

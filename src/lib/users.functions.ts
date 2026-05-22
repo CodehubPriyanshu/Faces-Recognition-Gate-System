@@ -128,3 +128,40 @@ export const deleteUser = createServerFn({ method: "POST" })
     });
     return { ok: true };
   });
+
+const passwordSchema = z.string()
+  .min(8, "Min 8 characters")
+  .max(72)
+  .regex(/[A-Z]/, "Need an uppercase letter")
+  .regex(/[0-9]/, "Need a number");
+
+/** Update password. Admins can update anyone; others can only update themselves. */
+export const updateUserPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ id: z.string().uuid(), password: passwordSchema }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const isSelf = data.id === context.userId;
+    let isAdmin = false;
+    if (!isSelf) {
+      const { data: roleRow } = await context.supabase
+        .from("user_roles").select("role").eq("user_id", context.userId).eq("role", "admin").maybeSingle();
+      isAdmin = !!roleRow;
+      if (!isAdmin) throw new Error("Forbidden: only admins can change other users' passwords");
+    }
+
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, { password: data.password });
+    if (error) throw new Error(error.message);
+
+    const { data: target } = await supabaseAdmin.from("profiles").select("email").eq("id", data.id).maybeSingle();
+    await supabaseAdmin.from("audit_logs").insert({
+      action: "USER.PASSWORD_UPDATE",
+      actor_id: context.userId,
+      actor_email: (context.claims as { email?: string }).email ?? null,
+      actor_role: isSelf ? "self" : "admin",
+      target: target?.email ?? data.id,
+      metadata: { self: isSelf },
+    });
+    return { ok: true };
+  });

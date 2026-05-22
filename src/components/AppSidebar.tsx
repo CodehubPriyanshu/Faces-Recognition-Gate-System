@@ -1,7 +1,9 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, ScanFace, DoorOpen, History, ScrollText, Users, Shield, LogOut } from "lucide-react";
+import { useState } from "react";
+import { LayoutDashboard, ScanFace, DoorOpen, History, ScrollText, Users, Shield, LogOut, KeyRound } from "lucide-react";
 import { motion } from "framer-motion";
 import { signOut, type AppRole, type AuthProfile } from "@/hooks/use-auth";
+import { UpdatePasswordModal } from "@/components/UpdatePasswordModal";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "security_guard", "gate_operator"] as AppRole[] },
@@ -18,9 +20,10 @@ const ROLE_BADGE: Record<AppRole, string> = {
   gate_operator: "bg-info/15 text-info border-info/40",
 };
 
-export function AppSidebar({ role, profile }: { role: AppRole; profile: AuthProfile }) {
+export function AppSidebar({ role, profile, userId }: { role: AppRole; profile: AuthProfile; userId: string }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const [pwOpen, setPwOpen] = useState(false);
 
   const items = NAV.filter((n) => n.roles.includes(role));
   const initial = (profile.full_name || profile.email).charAt(0).toUpperCase();
@@ -81,6 +84,12 @@ export function AppSidebar({ role, profile }: { role: AppRole; profile: AuthProf
           {role}
         </div>
         <button
+          onClick={() => setPwOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-border text-[0.75rem] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
+        >
+          <KeyRound className="w-3.5 h-3.5" /> Change Password
+        </button>
+        <button
           onClick={async () => {
             await signOut();
             navigate({ to: "/login" });
@@ -90,6 +99,15 @@ export function AppSidebar({ role, profile }: { role: AppRole; profile: AuthProf
           <LogOut className="w-3.5 h-3.5" /> Sign Out
         </button>
       </div>
+
+      {pwOpen && (
+        <UpdatePasswordModal
+          userId={userId}
+          userEmail={profile.email}
+          isSelf
+          onClose={() => setPwOpen(false)}
+        />
+      )}
     </aside>
   );
 }
