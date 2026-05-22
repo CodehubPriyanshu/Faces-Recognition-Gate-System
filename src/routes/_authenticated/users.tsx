@@ -27,6 +27,7 @@ function UsersPage() {
   const [users, setUsers] = useState<U[]>([]);
   const [form, setForm] = useState({ email: "", password: "", full_name: "", role: "gate_operator" as const });
   const [busy, setBusy] = useState(false);
+  const [pwTarget, setPwTarget] = useState<U | null>(null);
 
   const refresh = () => list().then((u) => setUsers(u as U[])).catch((e) => toast.error(e.message));
   useEffect(() => { refresh(); }, []);
