@@ -87,7 +87,16 @@ function UsersPage() {
                   </td>
                   <td className="px-4 py-3 font-mono text-[0.72rem] text-muted-foreground">{new Date(u.created_at).toLocaleDateString("en-GB")}</td>
                   <td className="px-4 py-3 text-right">
-                    <button onClick={() => del(u)} className="text-destructive hover:bg-destructive/10 rounded p-1.5"><Trash2 className="w-4 h-4" /></button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={() => setPwTarget(u)}
+                        title="Update password"
+                        className="text-primary hover:bg-primary/10 rounded p-1.5"
+                      >
+                        <KeyRound className="w-4 h-4" />
+                      </button>
+                      <button onClick={() => del(u)} title="Delete user" className="text-destructive hover:bg-destructive/10 rounded p-1.5"><Trash2 className="w-4 h-4" /></button>
+                    </div>
                   </td>
                 </tr>
               ))}
