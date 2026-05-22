@@ -28,7 +28,7 @@ function AuthenticatedLayout() {
 
   return (
     <div className="min-h-screen flex">
-      <AppSidebar role={auth.role} profile={auth.profile} />
+      <AppSidebar role={auth.role} profile={auth.profile} userId={auth.user.id} />
       <div className="flex-1 flex flex-col min-w-0">
         <AppHeader />
         <main className="flex-1 px-6 lg:px-10 py-8 overflow-x-hidden">
