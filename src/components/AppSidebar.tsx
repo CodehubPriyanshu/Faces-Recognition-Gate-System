@@ -1,7 +1,9 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, ScanFace, DoorOpen, History, ScrollText, Users, Shield, LogOut } from "lucide-react";
+import { useState } from "react";
+import { LayoutDashboard, ScanFace, DoorOpen, History, ScrollText, Users, Shield, LogOut, KeyRound } from "lucide-react";
 import { motion } from "framer-motion";
 import { signOut, type AppRole, type AuthProfile } from "@/hooks/use-auth";
+import { UpdatePasswordModal } from "@/components/UpdatePasswordModal";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "security_guard", "gate_operator"] as AppRole[] },
