@@ -84,6 +84,12 @@ export function AppSidebar({ role, profile, userId }: { role: AppRole; profile: 
           {role}
         </div>
         <button
+          onClick={() => setPwOpen(true)}
+          className="w-full flex items-center justify-center gap-2 py-2 rounded-md border border-border text-[0.75rem] font-mono uppercase tracking-wider text-muted-foreground hover:text-primary hover:border-primary/50 transition-colors"
+        >
+          <KeyRound className="w-3.5 h-3.5" /> Change Password
+        </button>
+        <button
           onClick={async () => {
             await signOut();
             navigate({ to: "/login" });
@@ -93,6 +99,15 @@ export function AppSidebar({ role, profile, userId }: { role: AppRole; profile: 
           <LogOut className="w-3.5 h-3.5" /> Sign Out
         </button>
       </div>
+
+      {pwOpen && (
+        <UpdatePasswordModal
+          userId={userId}
+          userEmail={profile.email}
+          isSelf
+          onClose={() => setPwOpen(false)}
+        />
+      )}
     </aside>
   );
 }
