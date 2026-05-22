@@ -20,9 +20,10 @@ const ROLE_BADGE: Record<AppRole, string> = {
   gate_operator: "bg-info/15 text-info border-info/40",
 };
 
-export function AppSidebar({ role, profile }: { role: AppRole; profile: AuthProfile }) {
+export function AppSidebar({ role, profile, userId }: { role: AppRole; profile: AuthProfile; userId: string }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
+  const [pwOpen, setPwOpen] = useState(false);
 
   const items = NAV.filter((n) => n.roles.includes(role));
   const initial = (profile.full_name || profile.email).charAt(0).toUpperCase();
