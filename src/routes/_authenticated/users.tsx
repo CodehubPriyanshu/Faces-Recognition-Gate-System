@@ -107,6 +107,15 @@ function UsersPage() {
 
       <style>{`.input { width:100%; background:transparent; border:1px solid hsl(var(--border)); border-radius:6px; padding:8px 10px; font-family: 'JetBrains Mono', monospace; font-size:0.85rem; color: inherit; }
         .input:focus { outline:none; border-color: oklch(0.79 0.16 75 / 0.6); }`}</style>
+
+      {pwTarget && (
+        <UpdatePasswordModal
+          userId={pwTarget.id}
+          userEmail={pwTarget.email}
+          onClose={() => setPwTarget(null)}
+          onSuccess={refresh}
+        />
+      )}
     </div>
   );
 }
