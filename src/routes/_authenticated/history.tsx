@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Search, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/AppHeader";
+import PassDetailsModal from "@/components/PassDetailsModal";
+import type { PassData } from "@/lib/pdf";
 
 export const Route = createFileRoute("/_authenticated/history")({
   head: () => ({ meta: [{ title: "Visitor History — BSF · STC" }] }),
@@ -17,6 +19,7 @@ interface Row {
 
 function HistoryPage() {
   const [rows, setRows] = useState<Row[]>([]);
+  const [selected, setSelected] = useState<PassData | null>(null);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
 
@@ -41,6 +44,15 @@ function HistoryPage() {
     const blob = new Blob([lines.join("\n")], { type: "text/csv" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = `visitor-history-${Date.now()}.csv`; a.click();
+  };
+
+  const openDetails = async (id: string) => {
+    try {
+      const { data } = await supabase.from("visitors").select("*").eq("id", id).maybeSingle();
+      if (data) setSelected(data as PassData);
+    } catch (err) {
+      // ignore
+    }
   };
 
   return (
@@ -75,7 +87,9 @@ function HistoryPage() {
             <tbody>
               {filtered.map((r) => (
                 <tr key={r.id} className="border-t border-border hover:bg-muted/20">
-                  <td className="px-4 py-3 font-mono text-[0.78rem] text-primary">{r.pass_no}</td>
+                  <td className="px-4 py-3 font-mono text-[0.78rem] text-primary">
+                    <button onClick={() => openDetails(r.id)} className="underline hover:text-primary/80">{r.pass_no}</button>
+                  </td>
                   <td className="px-4 py-3 font-medium">{r.full_name}</td>
                   <td className="px-4 py-3 font-mono text-[0.78rem]">{r.mobile}</td>
                   <td className="px-4 py-3">{r.purpose}</td>
@@ -94,6 +108,7 @@ function HistoryPage() {
           </table>
         </div>
       </div>
+      {selected && <PassDetailsModal data={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
