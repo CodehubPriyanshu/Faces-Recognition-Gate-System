@@ -68,6 +68,36 @@ A secure gate entry and exit verification system built with Vite, React, TanStac
 
 Copy `.env.example` to `.env` and fill in the required values for Supabase and any other secure config.
 
+For Netlify, add these same variables in **Project configuration > Environment variables**:
+
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+Do not expose `SUPABASE_SERVICE_ROLE_KEY` with a `VITE_` prefix. It must remain server-only.
+
+## Netlify Deployment
+
+This project is configured for Netlify using the official TanStack Start adapter.
+
+- Build command: `npm run build`
+- Publish directory: `dist/client`
+- Node version: `22.12.0`
+
+The `netlify.toml` file contains these settings, so Netlify should detect them automatically after you connect the repository.
+
+Deployment checklist:
+
+1. Push this repository to GitHub, GitLab, or Bitbucket.
+2. In Netlify, choose **Add new project > Import an existing project**.
+3. Select the repository and branch.
+4. Confirm the build settings from `netlify.toml`: `npm run build` and `dist/client`.
+5. Add the Supabase environment variables listed above.
+6. Deploy the site.
+7. In Supabase Auth settings, add your Netlify URL to the allowed site/redirect URLs, for example `https://your-site.netlify.app`.
+
 ## Vercel Deployment
 
 This project is configured for Vercel deployment using Vite and a static build target.

@@ -98,6 +98,7 @@ export type Database = {
           entry_by: string | null
           entry_time: string
           exit_by: string | null
+          exit_confidence: number | null
           exit_method: string | null
           exit_time: string | null
           full_name: string
@@ -121,6 +122,7 @@ export type Database = {
           entry_by?: string | null
           entry_time?: string
           exit_by?: string | null
+          exit_confidence?: number | null
           exit_method?: string | null
           exit_time?: string | null
           full_name: string
@@ -144,6 +146,7 @@ export type Database = {
           entry_by?: string | null
           entry_time?: string
           exit_by?: string | null
+          exit_confidence?: number | null
           exit_method?: string | null
           exit_time?: string | null
           full_name?: string

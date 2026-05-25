@@ -1,0 +1,2 @@
+ALTER TABLE public.visitors
+ADD COLUMN IF NOT EXISTS exit_confidence DOUBLE PRECISION;

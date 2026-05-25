@@ -8,7 +8,13 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 // Disable Cloudflare build output for Vercel deployments.
 // This lets Vercel use Vite's static build instead of the Cloudflare worker target.
+const netlifyPlugins =
+  process.env.NETLIFY === "true"
+    ? [(await import("@netlify/vite-plugin-tanstack-start")).default()]
+    : [];
+
 export default defineConfig({
+  plugins: netlifyPlugins,
   cloudflare: false,
   tanstackStart: {
     server: { entry: "server" },

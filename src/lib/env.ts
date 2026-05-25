@@ -65,9 +65,10 @@ let _warnedServer = false;
  * privileges — but the app will still start without errors.
  */
 export function getSupabaseServerEnv() {
-  const url = process.env.SUPABASE_URL || '';
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY || '';
+  const publishableKey =
+    process.env.SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 
   if (!url) {
     const message = 'Missing SUPABASE_URL in environment. Please check your .env file.';
