@@ -1,15 +1,45 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { LayoutDashboard, ScanFace, DoorOpen, History, ScrollText, Users, Shield, LogOut, KeyRound } from "lucide-react";
+import {
+  LayoutDashboard,
+  ScanFace,
+  DoorOpen,
+  History,
+  ScrollText,
+  Users,
+  Shield,
+  LogOut,
+  KeyRound,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { signOut, type AppRole, type AuthProfile } from "@/hooks/use-auth";
 import { UpdatePasswordModal } from "@/components/UpdatePasswordModal";
 
 const NAV = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["admin", "security_guard", "gate_operator"] as AppRole[] },
-  { to: "/entry", label: "Gate Entry", icon: ScanFace, roles: ["admin", "security_guard", "gate_operator"] as AppRole[] },
-  { to: "/exit", label: "Gate Exit", icon: DoorOpen, roles: ["admin", "security_guard", "gate_operator"] as AppRole[] },
-  { to: "/history", label: "Visitor History", icon: History, roles: ["admin", "security_guard", "gate_operator"] as AppRole[] },
+  {
+    to: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    roles: ["admin", "security_guard", "gate_operator"] as AppRole[],
+  },
+  {
+    to: "/entry",
+    label: "Gate Entry",
+    icon: ScanFace,
+    roles: ["admin", "security_guard", "gate_operator"] as AppRole[],
+  },
+  {
+    to: "/exit",
+    label: "Gate Exit",
+    icon: DoorOpen,
+    roles: ["admin", "security_guard", "gate_operator"] as AppRole[],
+  },
+  {
+    to: "/history",
+    label: "Visitor History",
+    icon: History,
+    roles: ["admin", "security_guard", "gate_operator"] as AppRole[],
+  },
   { to: "/audit", label: "Audit Logs", icon: ScrollText, roles: ["admin"] as AppRole[] },
   { to: "/users", label: "User Management", icon: Users, roles: ["admin"] as AppRole[] },
 ];
@@ -20,7 +50,15 @@ const ROLE_BADGE: Record<AppRole, string> = {
   gate_operator: "bg-info/15 text-info border-info/40",
 };
 
-export function AppSidebar({ role, profile, userId }: { role: AppRole; profile: AuthProfile; userId: string }) {
+export function AppSidebar({
+  role,
+  profile,
+  userId,
+}: {
+  role: AppRole;
+  profile: AuthProfile;
+  userId: string;
+}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [pwOpen, setPwOpen] = useState(false);
@@ -76,11 +114,17 @@ export function AppSidebar({ role, profile, userId }: { role: AppRole; profile: 
             {initial}
           </div>
           <div className="min-w-0">
-            <div className="text-sm font-semibold truncate">{profile.full_name || profile.email}</div>
-            <div className="text-[0.7rem] text-muted-foreground font-mono truncate">{profile.email}</div>
+            <div className="text-sm font-semibold truncate">
+              {profile.full_name || profile.email}
+            </div>
+            <div className="text-[0.7rem] text-muted-foreground font-mono truncate">
+              {profile.email}
+            </div>
           </div>
         </div>
-        <div className={`inline-block px-2 py-0.5 rounded-sm border text-[0.65rem] font-mono uppercase tracking-wider ${ROLE_BADGE[role]}`}>
+        <div
+          className={`inline-block px-2 py-0.5 rounded-sm border text-[0.65rem] font-mono uppercase tracking-wider ${ROLE_BADGE[role]}`}
+        >
           {role}
         </div>
         <button

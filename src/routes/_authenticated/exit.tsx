@@ -77,7 +77,10 @@ type BrowserFaceDetector = {
 
 declare global {
   interface Window {
-    FaceDetector?: new (options?: { fastMode?: boolean; maxDetectedFaces?: number }) => BrowserFaceDetector;
+    FaceDetector?: new (options?: {
+      fastMode?: boolean;
+      maxDetectedFaces?: number;
+    }) => BrowserFaceDetector;
   }
 }
 
@@ -149,7 +152,12 @@ async function detectFaces(source: CanvasImageSource): Promise<FaceBox[]> {
   }));
 }
 
-function cropEmbedding(source: CanvasImageSource, sourceWidth: number, sourceHeight: number, face?: FaceBox) {
+function cropEmbedding(
+  source: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number,
+  face?: FaceBox,
+) {
   const canvas = document.createElement("canvas");
   canvas.width = EMBEDDING_SIZE;
   canvas.height = EMBEDDING_SIZE;
@@ -256,7 +264,10 @@ function ExitPage() {
   const [lastConfidence, setLastConfidence] = useState(0);
   const [confirming, setConfirming] = useState(false);
 
-  const faceDetectorReady = useMemo(() => typeof window !== "undefined" && !!window.FaceDetector, []);
+  const faceDetectorReady = useMemo(
+    () => typeof window !== "undefined" && !!window.FaceDetector,
+    [],
+  );
 
   const loadVisitors = useCallback(async () => {
     const { data, error } = await supabase
@@ -369,7 +380,8 @@ function ExitPage() {
     if (active.length === 0 || embeddings.length === 0) return;
 
     const video = videoRef.current;
-    if (!video || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !video.videoWidth) return;
+    if (!video || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA || !video.videoWidth)
+      return;
 
     if (scanStartedAtRef.current && Date.now() - scanStartedAtRef.current > SCAN_TIMEOUT_MS) {
       setScanState("no-match");
@@ -548,14 +560,24 @@ function ExitPage() {
             </button>
           </div>
 
-          <div className={`relative overflow-hidden rounded-md border bg-black aspect-[16/10] ${scannerTone}`}>
-            <video ref={videoRef} autoPlay playsInline muted className="h-full w-full object-cover scale-x-[-1]" />
+          <div
+            className={`relative overflow-hidden rounded-md border bg-black aspect-[16/10] ${scannerTone}`}
+          >
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="h-full w-full object-cover scale-x-[-1]"
+            />
             <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0,oklch(0.79_0.16_75_/_0.08)_50%,transparent_100%)] opacity-30" />
             <div className="absolute inset-6 rounded-md border border-primary/25" />
             <div className="absolute left-8 right-8 top-1/2 h-px bg-primary/35" />
             <div className="absolute bottom-8 top-8 left-1/2 w-px bg-primary/35" />
 
-            {["scanning", "processing", "no-match"].includes(scanState) && <div className="scan-line" />}
+            {["scanning", "processing", "no-match"].includes(scanState) && (
+              <div className="scan-line" />
+            )}
 
             {faceBox && (
               <div
@@ -576,11 +598,15 @@ function ExitPage() {
               </div>
               <div className="panel-inset px-3 py-2">
                 <div className="mono-label !text-[0.58rem]">Confidence</div>
-                <div className="font-display text-lg font-bold text-foreground">{confidenceLabel(lastConfidence)}</div>
+                <div className="font-display text-lg font-bold text-foreground">
+                  {confidenceLabel(lastConfidence)}
+                </div>
               </div>
               <div className="panel-inset px-3 py-2">
                 <div className="mono-label !text-[0.58rem]">Threshold</div>
-                <div className="font-display text-lg font-bold text-primary">{confidenceLabel(FACE_MATCH_THRESHOLD)}</div>
+                <div className="font-display text-lg font-bold text-primary">
+                  {confidenceLabel(FACE_MATCH_THRESHOLD)}
+                </div>
               </div>
             </div>
           </div>
@@ -599,25 +625,32 @@ function ExitPage() {
             </div>
             <div className="panel-inset px-3 py-2">
               <div className="mono-label !text-[0.58rem]">Image Errors</div>
-              <div className="font-display text-lg font-bold text-warning">{embeddingErrorCount}</div>
+              <div className="font-display text-lg font-bold text-warning">
+                {embeddingErrorCount}
+              </div>
             </div>
           </div>
 
-          {(scanState === "no-match" || scanState === "empty" || scanState === "error" || cameraDenied) && !matched && (
-            <div className="mt-5 rounded-md border border-destructive/50 bg-destructive/10 p-4 animate-in fade-in slide-in-from-bottom-2">
-              <div className="flex items-start gap-3">
-                <AlertTriangle className="mt-0.5 h-5 w-5 text-destructive" />
-                <div>
-                  <div className="font-display font-bold text-destructive">
-                    {scanState === "empty" ? "No Active Visitor Found" : "Face Not Matched"}
-                  </div>
-                  <div className="mt-1 font-mono text-xs text-muted-foreground">
-                    {message || "Please Retry Scan. Exit action is locked until identity is verified."}
+          {(scanState === "no-match" ||
+            scanState === "empty" ||
+            scanState === "error" ||
+            cameraDenied) &&
+            !matched && (
+              <div className="mt-5 rounded-md border border-destructive/50 bg-destructive/10 p-4 animate-in fade-in slide-in-from-bottom-2">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="mt-0.5 h-5 w-5 text-destructive" />
+                  <div>
+                    <div className="font-display font-bold text-destructive">
+                      {scanState === "empty" ? "No Active Visitor Found" : "Face Not Matched"}
+                    </div>
+                    <div className="mt-1 font-mono text-xs text-muted-foreground">
+                      {message ||
+                        "Please Retry Scan. Exit action is locked until identity is verified."}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
         </div>
 
         <div className="xl:col-span-2 space-y-5">
@@ -648,16 +681,25 @@ function ExitPage() {
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <div className="font-display text-xl font-bold truncate">{matched.visitor.full_name}</div>
-                  <div className="font-mono text-xs text-primary mt-1">{matched.visitor.pass_no}</div>
-                  <div className="font-mono text-xs text-muted-foreground mt-1">{matched.visitor.mobile}</div>
+                  <div className="font-display text-xl font-bold truncate">
+                    {matched.visitor.full_name}
+                  </div>
+                  <div className="font-mono text-xs text-primary mt-1">
+                    {matched.visitor.pass_no}
+                  </div>
+                  <div className="font-mono text-xs text-muted-foreground mt-1">
+                    {matched.visitor.mobile}
+                  </div>
                 </div>
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-2">
                 <Info label="Purpose" value={matched.visitor.purpose} />
                 <Info label="Vehicle" value={matched.visitor.vehicle_number ?? "-"} />
-                <Info label="Entry Time" value={new Date(matched.visitor.entry_time).toLocaleString("en-GB")} />
+                <Info
+                  label="Entry Time"
+                  value={new Date(matched.visitor.entry_time).toLocaleString("en-GB")}
+                />
                 <Info label="Status" value={matched.visitor.status.replace("_", " ")} success />
               </div>
 
@@ -685,7 +727,9 @@ function ExitPage() {
                 </div>
                 <div>
                   <div className="font-display font-bold">Awaiting Visitor</div>
-                  <div className="font-mono text-xs text-muted-foreground">Verified details appear only after a valid match.</div>
+                  <div className="font-mono text-xs text-muted-foreground">
+                    Verified details appear only after a valid match.
+                  </div>
                 </div>
               </div>
             </div>
@@ -709,7 +753,11 @@ function ExitPage() {
               {filtered.map((visitor) => (
                 <div key={visitor.id} className="panel-inset p-3 flex items-center gap-3">
                   {visitor.photo_url ? (
-                    <img src={visitor.photo_url} className="h-12 w-12 rounded-md object-cover border border-border" alt={visitor.full_name} />
+                    <img
+                      src={visitor.photo_url}
+                      className="h-12 w-12 rounded-md object-cover border border-border"
+                      alt={visitor.full_name}
+                    />
                   ) : (
                     <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center font-display font-bold text-primary">
                       {visitor.full_name[0]}
@@ -727,7 +775,9 @@ function ExitPage() {
                 </div>
               ))}
               {filtered.length === 0 && (
-                <div className="text-center py-10 font-mono text-sm text-muted-foreground">No active visitor with stored face image</div>
+                <div className="text-center py-10 font-mono text-sm text-muted-foreground">
+                  No active visitor with stored face image
+                </div>
               )}
             </div>
           </div>
@@ -741,7 +791,11 @@ function Info({ label, value, success }: { label: string; value: string; success
   return (
     <div className="panel-inset p-3">
       <div className="mono-label !text-[0.58rem]">{label}</div>
-      <div className={`mt-1 truncate font-mono text-xs uppercase ${success ? "text-success" : "text-foreground"}`}>{value}</div>
+      <div
+        className={`mt-1 truncate font-mono text-xs uppercase ${success ? "text-success" : "text-foreground"}`}
+      >
+        {value}
+      </div>
     </div>
   );
 }

@@ -44,15 +44,23 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
       <div className="max-w-md text-center">
         <div className="eyebrow mb-3 !text-destructive">// transmission error</div>
         <h1 className="text-xl font-semibold">This page failed to load</h1>
-        <p className="mt-2 text-sm text-muted-foreground font-mono">{error.message || "Unknown fault."}</p>
+        <p className="mt-2 text-sm text-muted-foreground font-mono">
+          {error.message || "Unknown fault."}
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
-            onClick={() => { router.invalidate(); reset(); }}
+            onClick={() => {
+              router.invalidate();
+              reset();
+            }}
             className="rounded-md bg-primary px-4 py-2 text-sm font-mono uppercase tracking-wider text-primary-foreground hover:bg-primary/90"
           >
             Retry
           </button>
-          <a href="/" className="rounded-md border border-border px-4 py-2 text-sm font-mono uppercase tracking-wider hover:bg-accent/10">
+          <a
+            href="/"
+            className="rounded-md border border-border px-4 py-2 text-sm font-mono uppercase tracking-wider hover:bg-accent/10"
+          >
             Home
           </a>
         </div>
@@ -67,7 +75,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "BSF · STC Bengaluru — Gate Entry Face Recognition System" },
-      { name: "description", content: "Secure gate entry & exit verification system for BSF STC Bengaluru campus." },
+      {
+        name: "description",
+        content: "Secure gate entry & exit verification system for BSF STC Bengaluru campus.",
+      },
       { name: "theme-color", content: "#161616" },
     ],
     links: [
@@ -89,8 +100,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <head><HeadContent /></head>
-      <body>{children}<Scripts /></body>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
     </html>
   );
 }

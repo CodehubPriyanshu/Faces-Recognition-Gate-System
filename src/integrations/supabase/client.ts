@@ -1,18 +1,18 @@
 // Supabase client — browser & SSR (publishable / anon key only).
 // Uses the centralized env utility to read credentials from .env.
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from './types';
-import { getSupabaseClientEnv } from '@/lib/env';
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "./types";
+import { getSupabaseClientEnv } from "@/lib/env";
 
 function createSupabaseClient() {
   const { url, anonKey } = getSupabaseClientEnv();
 
   return createClient<Database>(url, anonKey, {
     auth: {
-      storage: typeof window !== 'undefined' ? localStorage : undefined,
+      storage: typeof window !== "undefined" ? localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
-    }
+    },
   });
 }
 

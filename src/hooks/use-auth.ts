@@ -40,7 +40,11 @@ export function useAuth(): AuthState {
       setTimeout(async () => {
         const [{ data: roleRows }, { data: profile }] = await Promise.all([
           supabase.from("user_roles").select("role").eq("user_id", session.user.id),
-          supabase.from("profiles").select("full_name,email").eq("id", session.user.id).maybeSingle(),
+          supabase
+            .from("profiles")
+            .select("full_name,email")
+            .eq("id", session.user.id)
+            .maybeSingle(),
         ]);
         if (!mounted) return;
         const role = (roleRows?.[0]?.role as AppRole | undefined) ?? null;
@@ -48,7 +52,10 @@ export function useAuth(): AuthState {
           user: session.user,
           session,
           role,
-          profile: profile ?? { full_name: session.user.email ?? "", email: session.user.email ?? "" },
+          profile: profile ?? {
+            full_name: session.user.email ?? "",
+            email: session.user.email ?? "",
+          },
           loading: false,
         });
       }, 0);

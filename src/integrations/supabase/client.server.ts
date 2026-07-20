@@ -4,9 +4,9 @@
 //
 // Falls back to the publishable key if SUPABASE_SERVICE_ROLE_KEY is not set,
 // so the app can start locally without it (admin ops will lack elevated privileges).
-import { createClient } from '@supabase/supabase-js';
-import type { Database } from './types';
-import { getSupabaseServerEnv } from '@/lib/env';
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "./types";
+import { getSupabaseServerEnv } from "@/lib/env";
 
 function createSupabaseAdminClient() {
   const { url, serviceRoleKey } = getSupabaseServerEnv();
@@ -16,7 +16,7 @@ function createSupabaseAdminClient() {
       storage: undefined,
       persistSession: false,
       autoRefreshToken: false,
-    }
+    },
   });
 }
 

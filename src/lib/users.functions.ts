@@ -4,9 +4,24 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const DEMO_USERS = [
-  { email: "admin@bsf.gov.in", password: "Admin@123", full_name: "BSF Administrator", role: "admin" as const },
-  { email: "guard@bsf.gov.in", password: "Guard@123", full_name: "Security Guard", role: "security_guard" as const },
-  { email: "operator@bsf.gov.in", password: "Operator@123", full_name: "Gate Operator", role: "gate_operator" as const },
+  {
+    email: "admin@bsf.gov.in",
+    password: "Admin@123",
+    full_name: "BSF Administrator",
+    role: "admin" as const,
+  },
+  {
+    email: "guard@bsf.gov.in",
+    password: "Guard@123",
+    full_name: "Security Guard",
+    role: "security_guard" as const,
+  },
+  {
+    email: "operator@bsf.gov.in",
+    password: "Operator@123",
+    full_name: "Gate Operator",
+    role: "gate_operator" as const,
+  },
 ];
 
 /**
@@ -38,8 +53,12 @@ export const seedDemoUsers = createServerFn({ method: "POST" }).handler(async ()
       results.push({ email: u.email, status: "exists" });
     }
     if (userId) {
-      await supabaseAdmin.from("profiles").upsert({ id: userId, email: u.email, full_name: u.full_name });
-      await supabaseAdmin.from("user_roles").upsert({ user_id: userId, role: u.role }, { onConflict: "user_id,role" });
+      await supabaseAdmin
+        .from("profiles")
+        .upsert({ id: userId, email: u.email, full_name: u.full_name });
+      await supabaseAdmin
+        .from("user_roles")
+        .upsert({ user_id: userId, role: u.role }, { onConflict: "user_id,role" });
     }
   }
   return { results };
@@ -81,7 +100,11 @@ export const createUser = createServerFn({ method: "POST" })
   .inputValidator((input) => createUserSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { data: roleRow } = await context.supabase
-      .from("user_roles").select("role").eq("user_id", context.userId).eq("role", "admin").maybeSingle();
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
     if (!roleRow) throw new Error("Forbidden");
 
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
@@ -92,7 +115,9 @@ export const createUser = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(error.message);
     const userId = created.user!.id;
-    await supabaseAdmin.from("profiles").upsert({ id: userId, email: data.email, full_name: data.full_name });
+    await supabaseAdmin
+      .from("profiles")
+      .upsert({ id: userId, email: data.email, full_name: data.full_name });
     await supabaseAdmin.from("user_roles").insert({ user_id: userId, role: data.role });
 
     await supabaseAdmin.from("audit_logs").insert({
@@ -111,11 +136,19 @@ export const deleteUser = createServerFn({ method: "POST" })
   .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: roleRow } = await context.supabase
-      .from("user_roles").select("role").eq("user_id", context.userId).eq("role", "admin").maybeSingle();
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId)
+      .eq("role", "admin")
+      .maybeSingle();
     if (!roleRow) throw new Error("Forbidden");
     if (data.id === context.userId) throw new Error("Cannot delete your own account");
 
-    const { data: target } = await supabaseAdmin.from("profiles").select("email").eq("id", data.id).maybeSingle();
+    const { data: target } = await supabaseAdmin
+      .from("profiles")
+      .select("email")
+      .eq("id", data.id)
+      .maybeSingle();
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.id);
     if (error) throw new Error(error.message);
 
@@ -129,7 +162,8 @@ export const deleteUser = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const passwordSchema = z.string()
+const passwordSchema = z
+  .string()
   .min(8, "Min 8 characters")
   .max(72)
   .regex(/[A-Z]/, "Need an uppercase letter")
@@ -146,15 +180,25 @@ export const updateUserPassword = createServerFn({ method: "POST" })
     let isAdmin = false;
     if (!isSelf) {
       const { data: roleRow } = await context.supabase
-        .from("user_roles").select("role").eq("user_id", context.userId).eq("role", "admin").maybeSingle();
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", context.userId)
+        .eq("role", "admin")
+        .maybeSingle();
       isAdmin = !!roleRow;
       if (!isAdmin) throw new Error("Forbidden: only admins can change other users' passwords");
     }
 
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, { password: data.password });
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, {
+      password: data.password,
+    });
     if (error) throw new Error(error.message);
 
-    const { data: target } = await supabaseAdmin.from("profiles").select("email").eq("id", data.id).maybeSingle();
+    const { data: target } = await supabaseAdmin
+      .from("profiles")
+      .select("email")
+      .eq("id", data.id)
+      .maybeSingle();
     await supabaseAdmin.from("audit_logs").insert({
       action: "USER.PASSWORD_UPDATE",
       actor_id: context.userId,
