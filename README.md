@@ -20,7 +20,7 @@ existing admin's password or promotes an existing non-admin account.
 
 ## Environment variables
 
-All values are server-only. Keep `.env` and any credential backups out of git.
+The eight backend values below are server-only. Keep `.env` and any credential backups out of git.
 Never prefix credentials with `VITE_`. In particular,
 `SUPABASE_SERVICE_ROLE_KEY` must never have a `VITE_` prefix, even in legacy setups.
 
@@ -39,6 +39,29 @@ APP_URL must equal the deployed site URL so `checkOrigin()` accepts login and
 other POST requests. Use that domain consistently; deploy previews require their
 own APP_URL and should use a separate database. HTTPS production cookies have
 `Secure`, `HttpOnly`, and `SameSite=Lax` flags.
+
+## Demo login defaults
+
+`/login` pre-fills editable inputs using `VITE_DEMO_EMAIL` (fallback:
+`admin@bsf.gov.in`) and `VITE_DEMO_PASSCODE` (fallback: empty). Set both in
+`.env` locally and in Netlify build environment variables for demo deployment.
+Restart Vite after changing them; production changes require a rebuild.
+
+Every `VITE_` variable is public in the browser build. Never expose the real
+admin password: `ADMIN_PASSWORD` stays server-only and must never receive a
+`VITE_` prefix or be copied into `VITE_DEMO_PASSCODE`. Use a separate, disposable
+`gate_operator` demo account with a different password. Public demo credentials
+grant real operator access, so use a demo database for a publicly accessible demo.
+
+MongoDB emails are unique. Use `demo.operator@bsf.gov.in` for the public demo
+and keep `admin@bsf.gov.in` for the server-only admin account. Create
+the admin with `npm run db:seed`, then sign in as admin and create the demo
+account under User Management with role Gate Operator and credentials matching
+`VITE_DEMO_EMAIL` / `VITE_DEMO_PASSCODE`. The admin seed script creates only the
+admin; it does not create or downgrade the demo account.
+
+Authentication always goes through `POST /api/auth/login`, then directly to
+`/dashboard`. Existing sessions redirect to the dashboard automatically.
 
 ## Netlify deployment
 

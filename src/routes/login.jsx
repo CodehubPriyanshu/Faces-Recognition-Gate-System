@@ -18,8 +18,8 @@ const Route = createFileRoute("/login")({
 });
 function LoginPage() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState(import.meta.env.VITE_DEMO_EMAIL || "admin@bsf.gov.in");
+  const [password, setPassword] = useState(import.meta.env.VITE_DEMO_PASSCODE || "");
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     api("auth/session")
