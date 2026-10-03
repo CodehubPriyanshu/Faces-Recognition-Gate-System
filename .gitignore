@@ -38,5 +38,12 @@ dist-ssr
 .env
 .env.*
 !.env.example
+!frontend/.env.production
 *.local.json
 .cache/
+deployment.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/

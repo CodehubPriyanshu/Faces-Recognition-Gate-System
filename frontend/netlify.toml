@@ -1,0 +1,12 @@
+[build]
+  command = "npm run build"
+  publish = "dist/client"
+
+[build.environment]
+  NODE_VERSION = "22.12.0"
+  VITE_API_URL = ""
+
+# API_PROXY_URL belongs in the Netlify Functions environment, never in VITE_*.
+# Use the separately deployed Python service origin without an /api suffix.
+# The TanStack /api/$ route forwards cookies and preserves Set-Cookie.
+# Set Netlify Base directory to frontend; Package directory may be left blank.
