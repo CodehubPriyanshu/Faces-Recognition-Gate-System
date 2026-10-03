@@ -1,121 +1,104 @@
 # Vigil Guardian Pass
 
-A secure gate entry and exit verification system built with Vite, React, TanStack Start, and Supabase.
+Gate entry and exit management using React 19, TanStack Start SSR, MongoDB,
+Tailwind CSS 4, and Radix UI. MongoDB is the single source of truth for users,
+sessions, visitors, images, and audit logs. Supabase is no longer used.
 
-## Overview
+## Local development
 
-`Vigil Guardian Pass` is a modern web application designed for BSF STC Bengaluru campus access control. It uses server-side rendering and a Vite-powered React stack to provide a fast, secure, and maintainable gate pass management experience.
+Use Node >=22.12.0 and npm. Start MongoDB locally or supply an Atlas connection.
 
-## Key Features
+1. Run `npm install`.
+2. Copy `.env.example` to `.env` and fill in all eight variables below.
+3. Generate AUTH_SECRET with `node -e "console.log(require('node:crypto').randomBytes(48).toString('hex'))"`.
+4. Run `npm run db:check`, then `npm run db:seed` to create the initial admin.
+5. Run `npm run dev` and open `http://localhost:8080`.
 
-- Authentication using Supabase
-- Secure gate entry and exit verification
-- Face recognition workflow support
-- SSR-ready React app via TanStack Start
-- Tailwind CSS + Radix UI component-based UI
-- Modular route-based UI with `@tanstack/react-router`
-- PDF generation and audit logs
-- Optimized Vite build for deployment
+The seed script validates the admin using the same password and user rules as
+API-created accounts. It creates the unique email index and never resets an
+existing admin's password or promotes an existing non-admin account.
 
-## Tech Stack
+## Environment variables
 
-- Vite
-- React 19
-- TanStack Start
-- `@tanstack/react-router`
-- Supabase
-- Tailwind CSS 4
-- Radix UI
-- TypeScript
+All values are server-only. Keep `.env` and any credential backups out of git.
+Never prefix credentials with `VITE_`. In particular,
+`SUPABASE_SERVICE_ROLE_KEY` must never have a `VITE_` prefix, even in legacy setups.
 
-## Project Structure
+| Variable          | Value / purpose                                                                                                      |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| MONGODB_URI       | Local MongoDB URI or Atlas `mongodb+srv://...` connection string                                                     |
+| MONGODB_DB_NAME   | `vigil_guardian_pass` (use the same database for seeding and runtime)                                                |
+| APP_URL           | `http://localhost:8080` locally; exact `https://your-site.netlify.app` URL or configured custom domain in production |
+| AUTH_SECRET       | Random secret, at least 32 characters; changing it invalidates sessions                                              |
+| SESSION_TTL_HOURS | `12`; API clamps sessions to 1-168 hours                                                                             |
+| ADMIN_EMAIL       | Initial administrator email                                                                                          |
+| ADMIN_NAME        | Initial administrator name                                                                                           |
+| ADMIN_PASSWORD    | Initial password: 8-128 characters, uppercase letter and number                                                      |
 
-- `src/` — source code
-  - `routes/` — application routes and page components
-  - `integrations/supabase/` — Supabase auth and client setup
-  - `lib/` — utility modules and server helpers
-  - `components/` — reusable UI components
-- `vite.config.ts` — Vite configuration
-- `package.json` — npm scripts and dependencies
-- `vercel.json` — Vercel deployment settings
+APP_URL must equal the deployed site URL so `checkOrigin()` accepts login and
+other POST requests. Use that domain consistently; deploy previews require their
+own APP_URL and should use a separate database. HTTPS production cookies have
+`Secure`, `HttpOnly`, and `SameSite=Lax` flags.
 
-## Local Development
+## Netlify deployment
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the dev server
-
-   ```bash
-   npm run dev
-   ```
-
-3. Open the app in your browser at the URL shown in the terminal.
-
-## Build Scripts
-
-- `npm run dev` — start Vite development server
-- `npm run build` — produce a production build
-- `npm run preview` — preview production build locally
-- `npm run lint` — run ESLint
-- `npm run format` — format code with Prettier
-- `npm run vercel-build` — build command configured for Vercel
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in the required values for Supabase and any other secure config.
-
-For Netlify, add these same variables in **Project configuration > Environment variables**:
-
-- `SUPABASE_URL`
-- `SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_PUBLISHABLE_KEY`
-
-Do not expose `SUPABASE_SERVICE_ROLE_KEY` with a `VITE_` prefix. It must remain server-only.
-
-## Netlify Deployment
-
-This project is configured for Netlify using the official TanStack Start adapter.
+`netlify.toml` is the primary deployment configuration:
 
 - Build command: `npm run build`
 - Publish directory: `dist/client`
 - Node version: `22.12.0`
+- SSR/API: `@netlify/vite-plugin-tanstack-start`, activated only with `NETLIFY=true`
 
-The `netlify.toml` file contains these settings, so Netlify should detect them automatically after you connect the repository.
+This matches the [official Netlify TanStack Start setup](https://docs.netlify.com/build/frameworks/framework-setup-guides/tanstack-start/).
+Do not deploy the client output alone: the generated Netlify Functions are
+required for SSR and `/api/$` GET/POST requests.
 
-Deployment checklist:
+1. Import the repository in Netlify and retain the `netlify.toml` build settings.
+2. Add all eight variables in the table under **Project configuration > Environment variables**.
+   Ensure they are available to Functions and builds. Do not store secrets in netlify.toml.
+3. In MongoDB Atlas, create a database user with read/write access to the app database.
+   Under **Network Access**, add `0.0.0.0/0` for Netlify's dynamic function egress
+   (or use a configured fixed-egress arrangement). Restrict database access with
+   strong credentials and database-scoped permissions.
+4. Seed the same Atlas database once from a trusted local shell: configure that URI
+   and database in `.env`, run `npm run db:check`, then `npm run db:seed`.
+   Seeding is deliberately not part of the deploy build.
+5. Deploy, then verify login, visitor entry/images/exit, users/passwords, and audit logs.
 
-1. Push this repository to GitHub, GitLab, or Bitbucket.
-2. In Netlify, choose **Add new project > Import an existing project**.
-3. Select the repository and branch.
-4. Confirm the build settings from `netlify.toml`: `npm run build` and `dist/client`.
-5. Add the Supabase environment variables listed above.
-6. Deploy the site.
-7. In Supabase Auth settings, add your Netlify URL to the allowed site/redirect URLs, for example `https://your-site.netlify.app`.
+If `db:check` reports `ECONNREFUSED` during `querySrv`, the DNS resolver cannot
+resolve the Atlas SRV record. Verify the Atlas hostname and use a DNS resolver
+that supports SRV/TXT lookups, or use the standard connection string provided by
+Atlas. An IP access-list change alone does not fix DNS resolution.
 
-## Vercel Deployment
+Supabase Auth redirect URLs are not required. `vercel.json` and `wrangler.jsonc`
+are deprecated historical files; Vercel static and Cloudflare deployments are
+unsupported for this MongoDB/Netlify setup.
 
-This project is configured for Vercel deployment using Vite and a static build target.
+## Verification and scripts
 
-- Build command: `npm run vercel-build`
-- Output directory: `dist`
+- `npm run lint` checks JavaScript and JSX.
+- `npm test` runs isolated MongoDB API integration and polling tests. The first run
+  may download a MongoDB test binary; tests never use the database in `.env`.
+- `npm run build` builds local SSR and client assets.
+- `npm run preview` previews the local SSR production build.
+- After a local build, `npm run test:ssr` verifies login SSR and API GET/POST dispatch.
+  After a Netlify build, `npm run test:ssr -- --netlify` verifies the generated Function.
+- To verify the adapter locally in PowerShell, set `$env:NETLIFY = "true"`, run
+  `npm run build`, then `Remove-Item Env:NETLIFY`.
+- `npm run db:check` connects, pings MongoDB, and prepares application indexes.
+- `npm run db:seed` creates an initial admin without overwriting an existing one.
+- `npm run format` formats the project.
 
-The `vercel.json` file includes:
+Visitor lists refresh every five seconds and on focus or entry/exit events.
+Passwords use scrypt; session tokens are stored only as HMAC digests and MongoDB
+TTL indexes remove expired sessions. API tests cover authentication, permissions,
+users, session revocation, visitors and images, exit conflicts, and audit records.
 
-- `@vercel/static-build` for static asset delivery
-- SPA fallback routing to `index.html`
+## Structure
 
-## Notes
-
-- The Vite config disables Cloudflare-specific build output so the project can deploy cleanly to Vercel.
-- The repo uses Node `>=18.0.0` in `package.json`.
-- Existing Cloudflare worker configuration files such as `wrangler.jsonc` remain in the repo, but Vercel deployment uses the static Vite output instead.
-
----
-
-If you want, I can also add a short `CONTRIBUTING.md` or deploy checklist for Vercel.
+- `src/server/{api,database,security}.js`: MongoDB API and authentication
+- `src/routes/api/$.js`: TanStack Start GET/POST server handlers
+- `src/routes/`: existing pages and routing
+- `src/components/`: existing Tailwind/Radix interface
+- `scripts/`: database check and admin bootstrap
+- `tests/`: integration and polling smoke tests

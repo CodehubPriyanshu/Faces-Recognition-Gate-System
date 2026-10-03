@@ -33,3 +33,10 @@ dist-ssr
 
 # Local Netlify folder
 .netlify
+
+# Credentials and migration reports
+.env
+.env.*
+!.env.example
+*.local.json
+.cache/
