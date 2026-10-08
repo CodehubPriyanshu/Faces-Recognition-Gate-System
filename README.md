@@ -1,4 +1,4 @@
-# Vigil Guardian Pass
+# Faces-Recognition-Gate-System
 
 React 19, TanStack Start, Vite 7 and Tailwind 4 frontend; Python 3.12,
 FastAPI, Uvicorn and PyMongo backend; MongoDB persistence.
